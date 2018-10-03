@@ -7,6 +7,13 @@
 import os
 import pandas as pd
 from snakemake.utils import validate, min_version
+
+###########
+# Container
+###########
+singularity: "docker://continuumio/miniconda3"
+
+
 #############################################
 # Configuration and sample sheets
 #############################################
