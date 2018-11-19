@@ -11,7 +11,7 @@ from snakemake.utils import validate, min_version
 ###########
 # Container
 ###########
-singularity: "shub://truatpasteurdotfr/singularity-docker-miniconda3"
+singularity: "truatpasteurdotfr/singularity-docker-miniconda"
 
 #############################################
 # Configuration and sample sheets
