@@ -76,7 +76,7 @@ BED_BROAD       =     expand(RESULT_DIR + "bed/{treatment}_vs_{control}_peaks.br
 ################
 rule all:
     input:
-        FASTQC_REPORTS,
+        #FASTQC_REPORTS,
         BIGWIG,
         BED_NARROW,
         BED_BROAD
