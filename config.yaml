@@ -5,14 +5,10 @@ units: units.tsv
 
 # files and directories
 temp_dir: "temp/"         # this directory will store intermediate files and everything that can be deleted upon execution of the pipeline
-result_dir: "results/"
+result_dir: "results/"    # this is where you want to find your result files at the end of the analysis
 
 # resources
 cores: 16  #check this via 'grep -c processor /proc/cpuinfo' and use htop to see the number of CPUs in use
-
-
-# adapters for trimmomatic
-
 
 # trimmomatic parameters
 trimmomatic:
@@ -32,36 +28,34 @@ refs:
   genome_url:  "ftp://ftp.solgenomics.net/tomato_genome/assembly/build_3.00/S_lycopersicum_chromosomes.3.00.fa"
   gff_url:     "ftp://ftp.solgenomics.net/tomato_genome/annotation/ITAG3.2_release/ITAG3.2_gene_models.gff"
 
-# Bowtie2 commands
-#bowtie2 --end-to-end --very-sensitive -p 16 -q --mm -x ../../bowtie/hg19 -1 02_trimmed/filename_forward_trimmed.fastq -2 02_trimmed/filename_reverse_trimmed.fastq -U 02_trimmed/filename__forward_Unpaired_trimmed.fastq,02_trimmed/Hfilename_reverse_Unpaired_trimmed.fastq -S 03_bowtie/filename.sam
-
-# Parameters for Bowtie2
+# Bowtie2 parameters 
 bowtie2:
   params:
-    mode: "--local"
-    sensitivity: "--very-sensitive-local"
-    max_fragment_len: "--maxins 500"                # maximum fragment length for valid paired-end alignments
-    min_fragment_len: "--minins 80"                 # minimum fragment length for valid paired-end alignments
-    verbose: "-q"
+    mode:               "--local"
+    sensitivity:        "--very-sensitive-local"
+    max_fragment_len:   "--maxins 500"                # maximum fragment length for valid paired-end alignments
+    min_fragment_len:   "--minins 80"                 # minimum fragment length for valid paired-end alignments
+    verbose:            "-q"
 
-#Parameters for bamCoverage:
-
+# bamCoverage parameters 
 # bamCoverage --bam {input} -o {output} --effectiveGenomeSize
-# --effectiveGenomeSize    The effective genome size is the portion of the genome that is mappable. Large fractions of the genome are stretches of NNNN that should be discarded. Also, if repetitive regions were not included in the mapping of
-#                          reads, the effective genome size needs to be adjusted accordingly.
+# --effectiveGenomeSize The effective genome size is the portion of the genome that is mappable. Large fractions of the genome are stretches of NNNN that should be discarded. Also, if repetitive regions were not included in the mapping of reads, the effective genome size needs to be adjusted accordingly.
 
 bamCoverage:
   params:
-    EFFECTIVEGENOMESIZE: '820000000' #source = http://plant-plasticity.github.io/resources/3_ATAC-seq%20data%20processing.pdf #option is --effectiveGenomeSize
-    EXTENDREADS: '200'              # extend each reads with a 200bp to match the average fragment size of the ChIP experiment
+    EFFECTIVEGENOMESIZE: '820000000' # source = http://plant-plasticity.github.io/resources/3_ATAC-seq%20data%20processing.pdf #option is --effectiveGenomeSize
+    EXTENDREADS: '200'               # extend each reads with a 200bp to match the average fragment size of the ChIP experiment
 
-# macs2 Parameters:
+# macs2 parameters:
           # for information over macs2, refer to https://github.com/taoliu/MACS
           # regular peak calling : macs2 callpeak -t ChIP.bam -c Control.bam -f BAM -g hs -n test -B -q 0.01
           # broad peak calling : macs2 callpeak -t ChIP.bam -c Control.bam --broad -g hs --broad-cutoff 0.1
 macs2:
-  genomesize: "--gsize mm"        #here I used 'mm' because it's the closest to tomato, for human change to 'hs'
-  format: "--format BAMPE"        #Use BAMPE to activate the paired end data, MACS will use the actual insert size of pairs of reads to build the fragemnt pileup.
-  qvalue: "0.05"                  #default is 0.05
-  outdir : "results/bed/"
-  bandwidth: "--bw 350"           #the bandwidth is used to scan the genome for model building. To be set to the expected sonication fragment size.
+  genomesize: "mm"                # here I used 'mm' because it's the closest to tomato, for human change to 'hs'
+  format:     "BAMPE"    # Use BAMPE to activate the paired end data, MACS will use the actual insert size of pairs of reads to build the fragment pileup.
+  qvalue:     "0.05"              # default is 0.05
+
+
+
+
+
