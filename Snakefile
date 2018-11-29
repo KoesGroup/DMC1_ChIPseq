@@ -276,7 +276,7 @@ rule call_narrow_peaks:
     message:
         "Calling narrow peaks with macs2"
     params:
-        name        = "{treatment}_vs_{control}",        #this option will give the output name, has to be similar to the output
+        name        = "{treatment}_vs_{control}",        # this option will give the output name, has to be similar to the output
         format      = str(config['macs2']['format']),
         genomesize  = str(config['macs2']['genomesize']),
         qvalue      = str(config['macs2']['qvalue'])

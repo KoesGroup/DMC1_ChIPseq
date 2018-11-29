@@ -52,7 +52,7 @@ bamCoverage:
           # broad peak calling : macs2 callpeak -t ChIP.bam -c Control.bam --broad -g hs --broad-cutoff 0.1
 macs2:
   genomesize: "mm"                # here I used 'mm' because it's the closest to tomato, for human change to 'hs'
-  format:     "BAMPE"    # Use BAMPE to activate the paired end data, MACS will use the actual insert size of pairs of reads to build the fragment pileup.
+  format:     "BAMPE"             # Use BAMPE to activate the paired end data, MACS will use the actual insert size of pairs of reads to build the fragment pileup.
   qvalue:     "0.05"              # default is 0.05
 
 
