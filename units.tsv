@@ -1,7 +1,7 @@
 sample	fq1	fq2	condition
 ChIP1	fastq/sub_S01_S1_R1_001.fastq	fastq/sub_S01_S1_R2_001.fastq	treatment
-ChIP2	fastq/sub_S02_S2_R1_001.fastq	fastq/sub_S02_S2_R2_001.fastq	treatment
+ChIP2	fastq/sub_S02_S2_R1_001.fastq		treatment
 ChIP3	fastq/sub_S03_S3_R1_001.fastq	fastq/sub_S03_S3_R2_001.fastq	treatment
-ChIP4	fastq/sub_S04_S4_R1_001.fastq	fastq/sub_S04_S4_R2_001.fastq	control
+ChIP4	fastq/sub_S04_S4_R1_001.fastq		control
 ChIP5	fastq/sub_S05_S5_R1_001.fastq	fastq/sub_S05_S5_R2_001.fastq	control
 ChIP6	fastq/sub_S06_S6_R1_001.fastq	fastq/sub_S06_S6_R2_001.fastq	control

@@ -1,34 +1,33 @@
 ---
-# samples
 samples: sample.tsv
+
 units: units.tsv
 
+
 # files and directories
+#fastq_dir: "fastq/"
 temp_dir: "temp/"         # this directory will store intermediate files and everything that can be deleted upon execution of the pipeline
 result_dir: "results/"    # this is where you want to find your result files at the end of the analysis
 
-# resources
-cores: 16  #check this via 'grep -c processor /proc/cpuinfo' and use htop to see the number of CPUs in use
-
 # trimmomatic parameters
 trimmomatic:
-  adapters:                'adapters.fasta'
-  seedMisMatches:          '2'
-  palindromeClipTreshold:  '30'
-  simpleClipThreshold:     '10'
-  LeadMinTrimQual:         '3'
-  TrailMinTrimQual:        '3'
-  windowSize:              '4'
-  avgMinQual:              '15'
-  minReadLength:           '40'
-  phred:                   '-phred33' # phred: for illumina >1.8 the quality score are encoded by phred33
+  adapters: "adapters.fasta"
+  seedMisMatches: '2'
+  palindromeClipTreshold: '30'
+  simpleClipThreshold: '10'
+  LeadMinTrimQual: '3'
+  TrailMinTrimQual: '3'
+  windowSize: '4'
+  avgMinQual: '15'
+  minReadLength: '40'
+  phred: "-phred33" # phred: for illumina >1.8 the quality score are encoded by phred33
 
 ## Genomic references, annotations and aligner indexes
 refs:
   genome_url:  "ftp://ftp.solgenomics.net/tomato_genome/assembly/build_3.00/S_lycopersicum_chromosomes.3.00.fa"
-  gff_url:     "ftp://ftp.solgenomics.net/tomato_genome/annotation/ITAG3.2_release/ITAG3.2_gene_models.gff"
+  gff_url: "ftp://ftp.solgenomics.net/tomato_genome/annotation/ITAG3.0_release/ITAG3.0_gene_models.gff"
 
-# Bowtie2 parameters 
+# Parameters for Bowtie2
 bowtie2:
   params:
     mode:               "--local"
@@ -43,8 +42,22 @@ bowtie2:
 
 bamCoverage:
   params:
-    EFFECTIVEGENOMESIZE: '820000000' # source = http://plant-plasticity.github.io/resources/3_ATAC-seq%20data%20processing.pdf #option is --effectiveGenomeSize
-    EXTENDREADS: '200'               # extend each reads with a 200bp to match the average fragment size of the ChIP experiment
+    EFFECTIVEGENOMESIZE: '820000000' #source = http://plant-plasticity.github.io/resources/3_ATAC-seq%20data%20processing.pdf #option is --effectiveGenomeSize
+    EXTENDREADS: '200'              # extend each reads with a 200bp to match the average fragment size of the ChIP experiment
+    binSize: "1000"
+    ignoreForNormalization: "SL3.0ch00" #list here space-delimited chromosomes that should be ignored for normalization, sex chromosomes usually.
+    smoothLength: "40"
+    normalizeUsing: "RPKM"
+
+
+bamcompare:
+  binSize: "1000"
+  normalizeUsing: "RPKM"          #others choices are CPM, BPM, RPGC, None more documentation:https://deeptools.readthedocs.io/en/develop/content/tools/bamCompare.html?highlight=bamcompare
+  EFFECTIVEGENOMESIZE: '820000000'
+  operation : "log2"              #others choices are ratio, subtract, add, mean, reciprocal_ratio, first, second more documentation:https://deeptools.readthedocs.io/en/develop/content/tools/bamCompare.html?highlight=bamcompare
+  smoothLength: "40"
+  scaleFactorsMethod: "None"       #others choices are readCount, ,SES
+  ignoreForNormalization: "SL3.0ch00" #list here space-delimited chromosomes that should be ignored for normalization, sex chromosomes usually.
 
 # macs2 parameters:
           # for information over macs2, refer to https://github.com/taoliu/MACS
@@ -55,7 +68,30 @@ macs2:
   format:     "BAMPE"             # Use BAMPE to activate the paired end data, MACS will use the actual insert size of pairs of reads to build the fragment pileup.
   qvalue:     "0.05"              # default is 0.05
 
+multiBamSummary:
+  binSize: "1000"
+
+computeMatrix:
+  binSize   : "1000"
+  upstream  : "3000"
+  downstream: "3000"
+
+plotCorrelation:
+  corMethod : "pearson"            # Can be replaced by spearman
+  whatToPlot: "heatmap"            # Can be replaced by scatterplot
+  color     : "PuBuGn"             # see [here](https://matplotlib.org/examples/color/colormaps_reference.html) for alternative colors
+
+plotHeatmap:
+  kmeans    : "1"
+  color     : "PuBuGn"
+  plot      : "plot, heatmap and colorbar"    # Others options are : “plot and heatmap”, “heatmap only” and “heatmap and colorbar”
 
 
+plotFingerprint:
+    EXTENDREADS: '200'
+    binSize: "1000"
 
-
+plotProfile:
+    kmeans : "1"                  # choose the number of kmeans to compute
+    startLabel : "TSS"            # default is TSS but could be anything, like "peak start"
+    endLabel : "TES"              # TES is default but can be changed like for startLabel
