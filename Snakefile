@@ -63,7 +63,7 @@ wildcard_constraints:
 # Desired output
 ##############
 
-FASTQC_REPORTS  =     expand(RESULT_DIR + "fastqc/{sample}_{pair}_fastqc.zip", sample=SAMPLES, pair={"forward", "reverse"})
+FASTQC_REPORTS  =     expand(RESULT_DIR + "fastqc/{sample}.html", sample=SAMPLES)
 BAM_INDEX       =     expand(RESULT_DIR + "mapped/{sample}.sorted.rmdup.bam.bai", sample=SAMPLES)
 BAM_RMDUP       =     expand(RESULT_DIR + "mapped/{sample}.sorted.rmdup.bam", sample=SAMPLES)
 BIGWIG          =     expand(RESULT_DIR + "bigwig/{sample}.bw", sample=SAMPLES)
@@ -76,7 +76,7 @@ BED_BROAD       =     expand(RESULT_DIR + "bed/{treatment}_vs_{control}_peaks.br
 ################
 rule all:
     input:
-        #FASTQC_REPORTS,
+        FASTQC_REPORTS,
         BIGWIG,
         BED_NARROW,
         BED_BROAD
@@ -138,18 +138,17 @@ rule fastqc:
         fwd = WORKING_DIR + "trimmed/{sample}_forward.fastq.gz",
         rev = WORKING_DIR + "trimmed/{sample}_reverse.fastq.gz"
     output:
-        fwd = RESULT_DIR + "fastqc/{sample}_forward_fastqc.zip",
-        rev = RESULT_DIR + "fastqc/{sample}_reverse_fastqc.zip"
+        RESULT_DIR + "fastqc/{sample}.html"
     log:
-        RESULT_DIR + "logs/fastqc/{sample}.fastqc.log"
+        RESULT_DIR + "logs/fastqc/{sample}.fastp.log"
     params:
         RESULT_DIR + "fastqc/"
     message:
-        "---Quality check of trimmed {wildcards.sample} sample with FASTQC"
+        "Quality check of trimmed {wildcards.sample} sample with fastp"
     conda:
-        "envs/fastqc.yaml"
+        "envs/fastp.yaml"
     shell:
-        "fastqc --outdir={params} {input.fwd} {input.rev} 2>{log}"
+        "fastp -i {input.fwd} -I {input.rev} -h {output} 2>{log}"
 
 rule index:
     input:
@@ -187,7 +186,7 @@ rule align:
         "--threads {threads} "
         "-x {params.index} "
         "-1 {input.forward} -2 {input.reverse} "
-        "-U {input.forwardUnpaired},{input.reverseUnpaired} "   # also takes the reads unpaired due to trimming
+        "-U {input.forwardUnpaired},{input.reverseUnpaired} "    # also takes the reads unpaired due to trimming
         "| samtools view -Sb - > {output}"                       # to get the output as a BAM file directly
 
 rule sort:
@@ -199,7 +198,8 @@ rule sort:
     threads: 10
     conda:
         "envs/samtools.yaml"
-    shell:"samtools sort -@ {threads} -o {output} {input}"
+    shell:
+        "samtools sort -@ {threads} -o {output} {input}"
 
 rule rmdup:
     input:
@@ -301,12 +301,23 @@ rule call_broad_peaks:
         name        = "{treatment}_vs_{control}",
         format      = str(config['macs2']['format']),
         genomesize  = str(config['macs2']['genomesize']),
-        qvalue      = str(config['macs2']['qvalue'])
+        qvalue      = str(config['macs2']['qvalue']),
+        resultdir   = RESULT_DIR + "bed/"  
     log:
         RESULT_DIR + "logs/macs2/{treatment}_vs_{control}_peaks.broadPeak.log"
     conda:
         "envs/macs2.yaml"
     shell:
-        """
-        macs2 callpeak -t {input.treatment} -c {input.control} {params.format} --broad --broad-cutoff 0.1 {params.genomesize} --name {params.name} --nomodel --bdg -q {params.qvalue} --outdir results/bed/ 2>{log}
-        """
+        "macs2 callpeak -t {input.treatment} -c {input.control} " 
+        "--params {params.format} "
+        "--broad --broad-cutoff 0.1 "
+        "--gsize {params.genomesize} "
+        "--name {params.name} "
+        "--nomodel "
+        "--bdg "
+        "-q {params.qvalue} "
+        "--outdir {params.outdir} "
+        "2>{log}"
+
+
+
